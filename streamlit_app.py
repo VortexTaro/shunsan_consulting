@@ -93,19 +93,20 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
         with st.spinner("思考中..."):
             # 1. 知識ベースから関連情報を検索
             relevant_docs = db.similarity_search(prompt, k=4)
-
-            # 2. プロンプトを構築 (シンプルに)
             context = "\n\n".join([doc.page_content for doc in relevant_docs])
+
+            # 2. 状況に応じてプロンプトを外部ファイルから読み込む
+            if context and relevant_docs:
+                # 関連情報がある場合
+                with open("prompt_with_context.md", "r", encoding="utf-8") as f:
+                    template = f.read()
+                final_prompt = template.format(context=context, prompt=prompt)
+            else:
+                # 関連情報がない場合
+                with open("prompt_without_context.md", "r", encoding="utf-8") as f:
+                    template = f.read()
+                final_prompt = template.format(prompt=prompt)
             
-            final_prompt = f"""あなたは親切なアシスタントです。以下の「関連情報」に書かれていることを元に、ユーザーの質問に誠実に答えてください。
-もし「関連情報」が空欄、または質問と全く関係ない場合は、「その件に関する情報は見つかりませんでした。」とだけ答えてください。
----
-関連情報:
-{context if context else "なし"}
----
-ユーザーの質問:
-{prompt}
-"""
             # 3. AI応答生成
             try:
                 stream = main_model.generate_content(final_prompt, stream=True)
