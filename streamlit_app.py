@@ -68,8 +68,65 @@ def load_or_create_faiss_index(_embeddings):
     st.success("知識ベースの構築が完了しました！")
     return db
 
+# --- デザイン設定 ---
+custom_css = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+/* 全体のフォントと背景色 (ヘッダー・フッター・ボトムエリア含む) */
+body, .stApp, [data-testid="stHeader"], [data-testid="stFooter"], [data-testid="stBottom"] {
+    font-family: 'Noto Sans JP', sans-serif;
+    background-color: #1E1E1E !important; /* ダークグレーの背景 */
+    color: #EAEAEA; /* 明るいグレーのテキスト */
+}
+
+/* アプリのタイトル */
+h1 {
+    color: #FFFFFF;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+}
+
+/* チャットメッセージのスタイル */
+div[data-testid="stChatMessage"] {
+    background-color: #2D2D2D; /* やや明るいグレー */
+    border-radius: 12px;
+    border: 1px solid #444444;
+}
+
+div[data-testid="stChatMessage"] p {
+    color: #EAEAEA;
+}
+
+/* チャット入力欄のコンテナ (フッター部分) */
+div[data-testid="stChatInput"] {
+    background-color: #1E1E1E !important;
+    border-top: 1px solid #444444;
+}
+
+/* チャット書き込み欄 */
+textarea[data-testid="stChatInputTextArea"] {
+    background-color: #2D2D2D;
+    color: #EAEAEA;
+    border: 1px solid #555555;
+    border-radius: 5px;
+}
+
+/* プレースホルダーのスタイル */
+textarea[data-testid="stChatInputTextArea"]::placeholder {
+  color: #888888;
+}
+
+/* スピナーのテキスト */
+.stSpinner > div > div {
+    color: #FFFFFF;
+}
+</style>
+"""
+
 # --- 初期設定 ---
 st.title("いつでもしゅんさん")
+st.markdown(custom_css, unsafe_allow_html=True)
+
 
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
