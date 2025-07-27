@@ -69,7 +69,7 @@ def load_or_create_faiss_index(_embeddings):
     return db
 
 # --- 初期設定 ---
-st.title("いつでもしゅんさん (Gemini-2.5 Pro)")
+st.title("いつでもしゅんさん")
 
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
