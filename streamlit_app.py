@@ -90,7 +90,7 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
     with st.chat_message("assistant", avatar=AVATAR_IMAGE_PATH):
         placeholder = st.empty()
         
-        with st.spinner("思考中..."):
+        with st.spinner("宇宙と通信中...ちょっとまってね..."):
             # 1. 知識ベースから関連情報を検索
             docs = db.similarity_search(prompt, k=5) # 少し多めに5件取得
 
@@ -107,9 +107,16 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
             # フィルター後の上位4件を使用
             relevant_docs = relevant_docs[:4]
 
-            # 3. 状況に応じてプロンプトを外部ファイルから読み込む
+            # 3. 会話履歴とプロンプトを構築
             context = "\n\n".join([doc.page_content for doc in relevant_docs])
 
+            # 会話履歴をAPIが期待する形式に変換（最新のプロンプトは除く）
+            history_for_model = []
+            for msg in st.session_state.messages[:-1]:
+                role = "model" if msg["role"] == "assistant" else "user"
+                history_for_model.append({'role': role, 'parts': [msg['content']]})
+
+            # 状況に応じてプロンプトテンプレートを読み込む
             if context and relevant_docs:
                 # 関連情報がある場合
                 with open("prompt_with_context.md", "r", encoding="utf-8") as f:
@@ -121,9 +128,10 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
                     template = f.read()
                 final_prompt = template.format(prompt=prompt)
             
-            # 4. AI応答生成
+            # 4. AI応答生成（会話履歴を渡す）
             try:
-                stream = main_model.generate_content(final_prompt, stream=True)
+                messages_for_api = history_for_model + [{'role': 'user', 'parts': [final_prompt]}]
+                stream = main_model.generate_content(messages_for_api, stream=True)
                 full_response = "".join(chunk.text for chunk in stream)
                 placeholder.markdown(full_response)
             except Exception as e:
