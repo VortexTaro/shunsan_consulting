@@ -92,10 +92,24 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
         
         with st.spinner("思考中..."):
             # 1. 知識ベースから関連情報を検索
-            relevant_docs = db.similarity_search(prompt, k=4)
+            docs = db.similarity_search(prompt, k=5) # 少し多めに5件取得
+
+            # 2. 【フィルター処理】特定のファイルを除外する
+            # 初心者向けの質問(オーダーノート, 書き方)の場合、上級者向けファイル(周波数の正体.txt)を除外
+            is_beginner_question = "オーダーノート" in prompt or "書き方" in prompt
+            is_advanced_topic_asked = "周波数" in prompt and ("正体" in prompt or "詳しく" in prompt or "仕組み" in prompt)
+
+            if is_beginner_question and not is_advanced_topic_asked:
+                relevant_docs = [doc for doc in docs if "周波数の正体.txt" not in doc.metadata.get('source', '')]
+            else:
+                relevant_docs = docs
+            
+            # フィルター後の上位4件を使用
+            relevant_docs = relevant_docs[:4]
+
+            # 3. 状況に応じてプロンプトを外部ファイルから読み込む
             context = "\n\n".join([doc.page_content for doc in relevant_docs])
 
-            # 2. 状況に応じてプロンプトを外部ファイルから読み込む
             if context and relevant_docs:
                 # 関連情報がある場合
                 with open("prompt_with_context.md", "r", encoding="utf-8") as f:
@@ -107,7 +121,7 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
                     template = f.read()
                 final_prompt = template.format(prompt=prompt)
             
-            # 3. AI応答生成
+            # 4. AI応答生成
             try:
                 stream = main_model.generate_content(final_prompt, stream=True)
                 full_response = "".join(chunk.text for chunk in stream)
