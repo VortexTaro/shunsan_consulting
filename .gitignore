@@ -1,0 +1,5 @@
+# 自動生成されるFAISSインデックス
+/data/
+
+# macOS固有のファイル
+.DS_Store 
