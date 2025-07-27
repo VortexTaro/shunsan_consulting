@@ -17,10 +17,10 @@ AVATAR_IMAGE_PATH = "assets/avatar.png"
 @st.cache_resource(show_spinner="知識を構造化しています...")
 def load_or_create_faiss_index(_embeddings):
     if os.path.exists(FAISS_INDEX_PATH):
-        st.info("既存の知識ベースを読み込んでいます...")
+        # 既存のインデックスをサイレントに読み込む
         return FAISS.load_local(FAISS_INDEX_PATH, _embeddings, allow_dangerous_deserialization=True)
     
-    st.info(f"新しい知識ベースを構築しています... (初回のみ)")
+    # 新しい知識ベースをサイレントに構築する
     if not os.path.isdir(KNOWLEDGE_BASE_DIR):
         st.error(f"知識フォルダ '{KNOWLEDGE_BASE_DIR}' が見つかりません。")
         st.stop()
@@ -42,7 +42,7 @@ def load_or_create_faiss_index(_embeddings):
 
     db = FAISS.from_documents(all_splits, _embeddings)
     db.save_local(FAISS_INDEX_PATH)
-    st.success("知識ベースの構築が完了しました！")
+    # st.success("知識ベースの構築が完了しました！") # UI上のメッセージを削除
     return db
 
 # --- 初期設定 ---
