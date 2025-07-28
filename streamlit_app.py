@@ -48,6 +48,19 @@ def load_or_create_faiss_index(_embeddings):
 # --- 初期設定 ---
 st.title("いつでもしゅんさん")
 
+# --- カスタムCSS ---
+# チャット入力欄のフォーカス時の色を緑に変更
+st.markdown("""
+<style>
+    /* テキスト入力エリアがフォーカスされた時のスタイル */
+    textarea[data-testid="stChatInputTextArea"]:focus {
+        border-color: #4CAF50 !important; /* 緑色のボーダー */
+        box-shadow: 0 0 0 1px #4CAF50 !important; /* 緑色のボックスシャドウ（外側の光彩） */
+    }
+</style>
+""", unsafe_allow_html=True)
+
+
 try:
     # APIキーの設定
     api_key = st.secrets["GEMINI_API_KEY"]
