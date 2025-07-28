@@ -1,7 +1,35 @@
-/* streamlit_app.pyから読み込むカスタムCSSファイル */
+/* Streamlitのチャット入力欄をターゲットにした、より強力なCSSルール */
 
-/* テキスト入力エリアがフォーカスされた時のスタイル */
-textarea[data-testid="stChatInputTextArea"]:focus {
-    border-color: #4CAF50 !important; /* 緑色のボーダー */
-    box-shadow: 0 0 0 2px #4CAF50 !important; /* 緑色のボックスシャドウ（外側の光彩） */
+/*
+  Streamlitのst.chat_inputは複数のdiv要素で構成されています。
+  外側のコンテナから内側のtextarea要素まで、段階的にスタイルを適用することで、
+  デフォルトのスタイルを確実に上書きします。
+*/
+
+/* 1. チャット入力欄全体を囲むコンテナ */
+div[data-testid="stChatInput"] {
+    background-color: #262730; /* 背景色をテーマに合わせる */
+}
+
+/* 2. 入力欄の直接の親要素（フォーカス時に枠線が表示される部分） */
+.st-emotion-cache-1uj3r3n e1d2x3se3 {
+    border-color: #B0B0B0 !important; /* 通常時のボーダー色 */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* アニメーション効果 */
+}
+
+/* 3. 【重要】フォーカス（タップ/クリック）された際のスタイル */
+.st-emotion-cache-1uj3r3n e1d2x3se3:focus-within {
+    border-color: #4CAF50 !important; /* ★緑色のボーダー */
+    box-shadow: 0 0 0 2px #4CAF50 !important; /* ★緑色のボックスシャドウ */
+}
+
+/* 4. 実際のテキスト入力エリア（textarea） */
+textarea[data-testid="stChatInputTextArea"] {
+    background-color: rgba(255, 255, 255, 0.05); /* 入力エリアの背景をわずかに明るく */
+    color: #FAFAFA; /* 文字色 */
+}
+
+/* 5. プレースホルダー（「質問や相談したいことを入力してね」の文字）のスタイル */
+textarea[data-testid="stChatInputTextArea"]::placeholder {
+  color: #a0a0a0; /* プレースホルダーの文字色を少し薄く */
 } 
