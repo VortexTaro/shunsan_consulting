@@ -82,7 +82,7 @@ if "messages" not in st.session_state:
 # チャット履歴の表示
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"], avatar=(AVATAR_IMAGE_PATH if msg["role"] == "assistant" else None)):
-        st.markdown(msg["content"])
+        st.write(msg["content"])
         # 参照元の表示 (シンプル版)
         if "sources" in msg and msg["sources"]:
             with st.expander("参照元ファイル"):
@@ -140,16 +140,8 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
             try:
                 messages_for_api = history_for_model + [{'role': 'user', 'parts': [final_prompt]}]
                 stream = main_model.generate_content(messages_for_api, stream=True)
-                
-                # ストリーミング中はプレーンテキストで結合
-                full_response = ""
-                for chunk in stream:
-                    full_response += chunk.text
-                    placeholder.text(full_response)
-
-                # 完了後に一度だけMarkdownとして描画
-                placeholder.markdown(full_response)
-
+                full_response = "".join(chunk.text for chunk in stream)
+                placeholder.write(full_response)
             except Exception as e:
                 full_response = f"AI応答の生成中にエラーが発生しました: {e}"
                 placeholder.error(full_response)
