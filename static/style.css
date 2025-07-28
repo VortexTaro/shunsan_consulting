@@ -1,35 +1,35 @@
-/* Streamlitのチャット入力欄をターゲットにした、より強力なCSSルール */
-
 /*
-  Streamlitのst.chat_inputは複数のdiv要素で構成されています。
-  外側のコンテナから内側のtextarea要素まで、段階的にスタイルを適用することで、
-  デフォルトのスタイルを確実に上書きします。
+  根本原因：Streamlitは`emotion`というライブラリを使い、`st-ae st-af...`や
+  `st-emotion-cache-...`のようなクラス名を自動生成します。これらは非常に不安定なため、
+  これらに依存しない、より堅牢なセレクタでスタイルを上書きする必要があります。
 */
 
-/* 1. チャット入力欄全体を囲むコンテナ */
-div[data-testid="stChatInput"] {
-    background-color: #262730; /* 背景色をテーマに合わせる */
-}
+/*
+  解決策：`data-testid`という変わりにくい属性と、要素の親子関係だけを利用してセレクタを構築します。
+  `:focus-within`疑似クラスを使い、入力欄（textarea）がフォーカスされたときに、
+  その親要素のスタイルを変更します。
+*/
 
-/* 2. 入力欄の直接の親要素（フォーカス時に枠線が表示される部分） */
-.st-emotion-cache-1uj3r3n e1d2x3se3 {
+/* 【最重要】チャット入力欄のコンテナがフォーカスされた際のスタイル */
+div[data-testid="stChatInput"] > div:first-child {
+    /*
+      このdivが、実際に枠線を持っている要素です。
+      `textarea`がフォーカスされると、このdivに`:focus-within`が適用されます。
+    */
     border-color: #B0B0B0 !important; /* 通常時のボーダー色 */
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* アニメーション効果 */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
 }
 
-/* 3. 【重要】フォーカス（タップ/クリック）された際のスタイル */
-.st-emotion-cache-1uj3r3n e1d2x3se3:focus-within {
+div[data-testid="stChatInput"]:focus-within > div:first-child {
     border-color: #4CAF50 !important; /* ★緑色のボーダー */
     box-shadow: 0 0 0 2px #4CAF50 !important; /* ★緑色のボックスシャドウ */
 }
 
-/* 4. 実際のテキスト入力エリア（textarea） */
+/* その他の微調整 */
 textarea[data-testid="stChatInputTextArea"] {
-    background-color: rgba(255, 255, 255, 0.05); /* 入力エリアの背景をわずかに明るく */
-    color: #FAFAFA; /* 文字色 */
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #FAFAFA;
 }
-
-/* 5. プレースホルダー（「質問や相談したいことを入力してね」の文字）のスタイル */
 textarea[data-testid="stChatInputTextArea"]::placeholder {
-  color: #a0a0a0; /* プレースホルダーの文字色を少し薄く */
+  color: #a0a0a0;
 } 
