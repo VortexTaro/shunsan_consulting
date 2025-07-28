@@ -7,6 +7,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 import google.generativeai as genai
 import uuid
+import re
 
 # --- 定数とパス設定 ---
 KNOWLEDGE_BASE_DIR = "オーダーノート現実創造プログラム"
@@ -82,7 +83,9 @@ if "messages" not in st.session_state:
 # チャット履歴の表示
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"], avatar=(AVATAR_IMAGE_PATH if msg["role"] == "assistant" else None)):
-        st.write(msg["content"])
+        # Markdownの**を<b>タグに手動で変換し、HTMLとしてレンダリングする
+        html_content = re.sub(r'\\*\\*(.*?)\\*\\*', r'<b>\\1</b>', msg["content"])
+        st.markdown(html_content, unsafe_allow_html=True)
         # 参照元の表示 (シンプル版)
         if "sources" in msg and msg["sources"]:
             with st.expander("参照元ファイル"):
@@ -140,8 +143,17 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
             try:
                 messages_for_api = history_for_model + [{'role': 'user', 'parts': [final_prompt]}]
                 stream = main_model.generate_content(messages_for_api, stream=True)
-                full_response = "".join(chunk.text for chunk in stream)
-                placeholder.write(full_response)
+                
+                # ストリーミング中はプレーンテキストで結合
+                full_response = ""
+                for chunk in stream:
+                    full_response += chunk.text
+                    placeholder.text(full_response)
+
+                # 完了後に一度だけHTMLとして描画
+                html_response = re.sub(r'\\*\\*(.*?)\\*\\*', r'<b>\\1</b>', full_response)
+                placeholder.markdown(html_response, unsafe_allow_html=True)
+
             except Exception as e:
                 full_response = f"AI応答の生成中にエラーが発生しました: {e}"
                 placeholder.error(full_response)
