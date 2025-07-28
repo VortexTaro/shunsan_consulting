@@ -140,8 +140,16 @@ if prompt := st.chat_input("質問や相談したいことを入力してね"):
             try:
                 messages_for_api = history_for_model + [{'role': 'user', 'parts': [final_prompt]}]
                 stream = main_model.generate_content(messages_for_api, stream=True)
-                full_response = "".join(chunk.text for chunk in stream)
-                placeholder.write(full_response)
+                
+                # ストリーミング中はプレーンテキストで結合
+                full_response = ""
+                for chunk in stream:
+                    full_response += chunk.text
+                    placeholder.text(full_response)
+
+                # 完了後に一度だけMarkdownとして描画
+                placeholder.markdown(full_response)
+
             except Exception as e:
                 full_response = f"AI応答の生成中にエラーが発生しました: {e}"
                 placeholder.error(full_response)
