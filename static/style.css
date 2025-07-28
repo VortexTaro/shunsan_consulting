@@ -1,0 +1,7 @@
+/* streamlit_app.pyから読み込むカスタムCSSファイル */
+
+/* テキスト入力エリアがフォーカスされた時のスタイル */
+textarea[data-testid="stChatInputTextArea"]:focus {
+    border-color: #4CAF50 !important; /* 緑色のボーダー */
+    box-shadow: 0 0 0 2px #4CAF50 !important; /* 緑色のボックスシャドウ（外側の光彩） */
+} 
